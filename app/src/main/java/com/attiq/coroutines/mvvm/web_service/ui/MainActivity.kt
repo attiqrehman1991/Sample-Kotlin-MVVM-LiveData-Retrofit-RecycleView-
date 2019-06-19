@@ -51,7 +51,8 @@ class MainActivity : AppCompatActivity() {
 
         initRecycleView()
         subscribeObservers()
-        viewModel.fetchPosts()
+        var partData:PartData= viewModel.fetchPosts()
+        adapter.addAll(partData!!.parts)
     }
 
     private fun initRecycleView() {
@@ -60,11 +61,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun subscribeObservers() {
-        viewModel.posts().observe(this, object : Observer<PartData> {
-            override fun onChanged(partData: PartData?) {
-                adapter.addAll(partData!!.parts)
-            }
-        })
+//        viewModel.posts().observe(this, object : Observer<PartData> {
+//            override fun onChanged(partData: PartData?) {
+//                adapter.addAll(partData!!.parts)
+//            }
+//        })
     }
 
     //    private fun loadPartsAndUpdateList() {

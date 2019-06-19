@@ -29,6 +29,9 @@ import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Observer
 import com.attiq.coroutines.mvvm.web_service.model.PartData
 import com.attiq.coroutines.mvvm.web_service.network.PartsListApiClient
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.lang.Exception
 
 class PartsRepositories {
     companion object {
@@ -38,28 +41,48 @@ class PartsRepositories {
     }
 
     private val postDataApiClient = PartsListApiClient.instance
-    private var partList = MediatorLiveData<PartData>()
+//    private var partList = MediatorLiveData<PartData>()
 
     init {
         initMediators()
     }
 
     fun initMediators() {
-        val source = postDataApiClient.getPartLists()
-        partList.addSource(source, object : Observer<PartData> {
-            override fun onChanged(response: PartData?) {
-                if (response != null)
-                    partList.value = response
+//        val source = postDataApiClient.getPartLists()
+//        partList.addSource(source, object : Observer<PartData> {
+//            override fun onChanged(response: PartData?) {
+//                if (response != null)
+//                    partList.value = response
+//            }
+//        })
+    }
+
+//    fun getParts(): LiveData<PartData> {
+//        return partList
+//    }
+
+//    fun fetchPartList() {
+//        postDataApiClient.fetchPartListData()
+//    }
+
+    suspend fun fetchPartList() {
+        withContext(Dispatchers.IO) {
+            try {
+                postDataApiClient.fetchPartListData().await()
+            } catch (err:Exception) {
+                err.printStackTrace()
             }
-        })
-
+        }
     }
 
-    fun getParts(): LiveData<PartData> {
-        return partList
-    }
+    suspend fun <T> PartsListApiClient<T>.await():T {
+        return kotlin.coroutines.suspendCoroutine { continuation ->
+            addOnResultListener { result ->
+                when(result) {
 
-    fun fetchPartList() {
-        postDataApiClient.fetchPartListData()
+                }
+
+            }
+        }
     }
 }

@@ -36,11 +36,11 @@ class PostListViewModel : ViewModel() {
     private val _posts = MutableLiveData<PartData>()
 
 
-    fun posts():LiveData<PartData> {
-        return repositories.getParts()
-    }
+//    fun posts():LiveData<PartData> {
+//        return repositories.getParts()
+//    }
 
-    fun fetchPosts() {
-        repositories.fetchPartList()
+    fun fetchPosts():LiveData<PartData> {
+        return repositories.fetchPartList()
     }
 }

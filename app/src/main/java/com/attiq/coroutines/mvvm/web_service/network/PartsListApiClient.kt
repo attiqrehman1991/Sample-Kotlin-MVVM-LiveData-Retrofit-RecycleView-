@@ -24,11 +24,12 @@
 
 package com.attiq.coroutines.mvvm.web_service.network
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.attiq.coroutines.mvvm.web_service.model.PartData
-import com.attiq.coroutines.mvvm.web_service.util.AppExecutors
-import java.util.concurrent.TimeUnit
+import com.google.gson.Gson
+import java.io.IOException
 
 class PartsListApiClient {
 
@@ -46,12 +47,30 @@ class PartsListApiClient {
     }
 
     fun fetchPartListData() {
-        if (retrievePLRunnable != null)
-            retrievePLRunnable = null
-        retrievePLRunnable = RetrievePDRunnable(partLists);
-        val handler = AppExecutors.instance.networkIO().submit(retrievePLRunnable)
-        AppExecutors.instance.networkIO().schedule({
-            handler.cancel(true)
-        }, 5000, TimeUnit.MILLISECONDS)
+//        if (retrievePLRunnable != null)
+//            retrievePLRunnable = null
+//        retrievePLRunnable = RetrievePDRunnable(partLists);
+//        val handler = AppExecutors.instance.networkIO().submit(retrievePLRunnable)
+//        AppExecutors.instance.networkIO().schedule({
+//            handler.cancel(true)
+//        }, 5000, TimeUnit.MILLISECONDS)
+
+        try {
+            val response = WebAccess.partsApi.partDataList().execute()
+            Log.d("response", "Response" + Gson().toJson(response.body()))
+            if (response.code() == 200) {
+                val list = response.body() as PartData
+                partLists.postValue(list)
+            } else
+                partLists.postValue(null)
+        } catch (err: IOException) {
+            err.printStackTrace()
+            Log.d("msg", err.toString())
+            partLists.postValue(null)
+        } catch (err: Exception) {
+            err.printStackTrace()
+            Log.d("msg", err.toString())
+            partLists.postValue(null)
+        }
     }
 }
