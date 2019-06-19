@@ -22,13 +22,36 @@
 *   SOFTWARE.
 */
 
-package com.attiq.coroutines.mvvm.web_service.model
+package com.attiq.coroutines.mvvm.web_service.network
 
-data class PartData(
-    val parts: MutableList<Part>
-)
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import com.attiq.coroutines.mvvm.web_service.model.PartData
+import com.attiq.coroutines.mvvm.web_service.util.AppExecutors
+import java.util.concurrent.TimeUnit
 
-data class Part(
-    val id: Int,
-    val itemName: String
-)
+class PartsListApiClient {
+
+    companion object {
+        val instance: PartsListApiClient by lazy {
+            PartsListApiClient()
+        }
+    }
+
+    private var partLists = MutableLiveData<PartData>()
+    private var retrievePLRunnable: RetrievePDRunnable? = null
+
+    fun getPartLists(): LiveData<PartData> {
+        return partLists
+    }
+
+    fun fetchPartListData() {
+        if (retrievePLRunnable != null)
+            retrievePLRunnable = null
+        retrievePLRunnable = RetrievePDRunnable(partLists);
+        val handler = AppExecutors.instance.networkIO().submit(retrievePLRunnable)
+        AppExecutors.instance.networkIO().schedule({
+            handler.cancel(true)
+        }, 5000, TimeUnit.MILLISECONDS)
+    }
+}

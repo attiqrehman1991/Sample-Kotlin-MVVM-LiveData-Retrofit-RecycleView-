@@ -22,13 +22,25 @@
 *   SOFTWARE.
 */
 
-package com.attiq.coroutines.mvvm.web_service.model
+package com.attiq.coroutines.mvvm.web_service.viewmodels
 
-data class PartData(
-    val parts: MutableList<Part>
-)
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import com.attiq.coroutines.mvvm.web_service.model.PartData
+import com.attiq.coroutines.mvvm.web_service.repositories.PartsRepositories
 
-data class Part(
-    val id: Int,
-    val itemName: String
-)
+class PostListViewModel : ViewModel() {
+
+    private var repositories= PartsRepositories.instance
+    private val _posts = MutableLiveData<PartData>()
+
+
+    fun posts():LiveData<PartData> {
+        return repositories.getParts()
+    }
+
+    fun fetchPosts() {
+        repositories.fetchPartList()
+    }
+}
