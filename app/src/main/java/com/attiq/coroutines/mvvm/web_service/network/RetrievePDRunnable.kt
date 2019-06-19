@@ -22,13 +22,34 @@
 *   SOFTWARE.
 */
 
-package com.attiq.coroutines.mvvm.web_service.model
+package com.attiq.coroutines.mvvm.web_service.network
 
-data class PartData(
-    val parts: MutableList<Part>
-)
+import android.util.Log
+import androidx.lifecycle.MutableLiveData
+import com.attiq.coroutines.mvvm.web_service.model.PartData
+import com.google.gson.Gson
+import retrofit2.Call
+import java.io.IOException
 
-data class Part(
-    val id: Int,
-    val itemName: String
-)
+class RetrievePDRunnable(private val partData: MutableLiveData<PartData>) : Runnable {
+    override fun run() {
+        try {
+            val response = makeNetworkCall().execute()
+
+            Log.d("response", "Response" + Gson().toJson(response.body()))
+            if (response.code() == 200) {
+                val list = response.body() as PartData
+                partData.postValue(list)
+            } else
+                partData.postValue(null)
+        } catch (err: IOException) {
+            err.printStackTrace()
+            Log.d("msg", err.toString())
+            partData.postValue(null)
+        }
+    }
+
+    fun makeNetworkCall(): Call<PartData> {
+        return WebAccess.partsApi.partDataList()
+    }
+}

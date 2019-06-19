@@ -22,13 +22,8 @@
 *   SOFTWARE.
 */
 
-package com.attiq.coroutines.mvvm.web_service.model
+package com.attiq.coroutines.mvvm.web_service.util
 
-data class PartData(
-    val parts: MutableList<Part>
-)
+import java.util.concurrent.Executors
 
-data class Part(
-    val id: Int,
-    val itemName: String
-)
+val BACKGROUND = Executors.newFixedThreadPool(2)
