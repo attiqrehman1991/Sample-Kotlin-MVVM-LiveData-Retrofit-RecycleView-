@@ -1,13 +1,34 @@
+/*
+*   MIT License
+*
+*   Copyright (c) 2019 Attiq ur Rehman
+*
+*   Permission is hereby granted, free of charge, to any person obtaining a copy
+*   of this software and associated documentation files (the "Software"), to deal
+*   in the Software without restriction, including without limitation the rights
+*   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+*   copies of the Software, and to permit persons to whom the Software is
+*   furnished to do so, subject to the following conditions:
+*
+*   The above copyright notice and this permission notice shall be included in all
+*   copies or substantial portions of the Software.
+*
+*   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+*   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+*   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+*   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+*   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+*   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+*   SOFTWARE.
+*/
+
 package com.attiq.coroutines.mvvm.web_service.network
 
-import com.andresjakl.partslist.PartData
-import kotlinx.coroutines.Deferred
-import retrofit2.Response
-import retrofit2.http.*
+import com.attiq.coroutines.mvvm.web_service.model.PartData
+import retrofit2.Call
+import retrofit2.http.GET
 
 interface PartsApiClient {
-    @GET("parts") fun getPartsAsync(): Deferred<Response<List<PartData>>>
-    @POST("parts") fun addPartAsync(@Body newPart : PartData): Deferred<Response<Void>>
-    @DELETE("parts/{id}") fun deletePartAsync(@Path("id") id: Long) : Deferred<Response<Void>>
-    @PUT("parts/{id}") fun updatePartAsync(@Path("id") id: Long, @Body newPart: PartData) : Deferred<Response<Void>>
+    @GET("bins/it1up")
+    fun partDataList(): Call<PartData>
 }

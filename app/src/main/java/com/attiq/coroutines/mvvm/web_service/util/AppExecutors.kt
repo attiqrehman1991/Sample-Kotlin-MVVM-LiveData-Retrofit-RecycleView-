@@ -22,13 +22,22 @@
 *   SOFTWARE.
 */
 
-package com.attiq.coroutines.mvvm.web_service.model
+package com.attiq.coroutines.mvvm.web_service.util
 
-data class PartData(
-    val parts: MutableList<Part>
-)
+import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledExecutorService
 
-data class Part(
-    val id: Int,
-    val itemName: String
-)
+class AppExecutors {
+
+    companion object {
+        val instance:AppExecutors by lazy {
+            AppExecutors()
+        }
+    }
+
+    private val mNetworkIO = Executors.newScheduledThreadPool(3)
+
+    fun networkIO(): ScheduledExecutorService {
+        return mNetworkIO
+    }
+}

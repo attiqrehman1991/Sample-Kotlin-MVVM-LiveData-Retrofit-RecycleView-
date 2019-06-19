@@ -1,108 +1,111 @@
+/*
+*   MIT License
+*
+*   Copyright (c) 2019 Attiq ur Rehman
+*
+*   Permission is hereby granted, free of charge, to any person obtaining a copy
+*   of this software and associated documentation files (the "Software"), to deal
+*   in the Software without restriction, including without limitation the rights
+*   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+*   copies of the Software, and to permit persons to whom the Software is
+*   furnished to do so, subject to the following conditions:
+*
+*   The above copyright notice and this permission notice shall be included in all
+*   copies or substantial portions of the Software.
+*
+*   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+*   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+*   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+*   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+*   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+*   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+*   SOFTWARE.
+*/
+
 package com.attiq.coroutines.mvvm.web_service.ui
 
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.andresjakl.partslist.PartData
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import com.attiq.coroutines.mvvm.web_service.R
 import com.attiq.coroutines.mvvm.web_service.adapter.PartAdapter
-import com.attiq.coroutines.mvvm.web_service.network.WebAccess
+import com.attiq.coroutines.mvvm.web_service.model.Part
+import com.attiq.coroutines.mvvm.web_service.model.PartData
+import com.attiq.coroutines.mvvm.web_service.viewmodels.PostListViewModel
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import java.io.IOException
-
 
 class MainActivity : AppCompatActivity() {
-    private val tag: String = MainActivity::class.java.simpleName
 
     private lateinit var adapter: PartAdapter
+    private lateinit var viewModel: PostListViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        rv_parts.layoutManager = LinearLayoutManager(this)
-        /*
-         * Use this setting to improve performance if you know that changes in content do not
-         * change the child layout size in the RecyclerView
-         */
-        rv_parts.hasFixedSize()
+        viewModel = ViewModelProviders
+            .of(this)
+            .get(PostListViewModel::class.java)
 
-        // Create the PartAdapter
-        // 1st parameter: our generated testData. listOf() generates empty list with correct type
-        // 2nd parameter: item click handler function (implemented below) as function parameter
-        adapter = PartAdapter(listOf(), { partItem: PartData -> partItemClicked(partItem) })
+        initRecycleView()
+        subscribeObservers()
+        viewModel.fetchPosts()
+    }
+
+    private fun initRecycleView() {
+        adapter = PartAdapter(mutableListOf(), { partItem: Part -> partItemClicked(partItem) })
         rv_parts.adapter = adapter
-
-        loadPartsAndUpdateList()
-
     }
 
-    private fun loadPartsAndUpdateList() {
-        // Launch Kotlin Coroutine on Android's main thread
-        // Note: better not to use GlobalScope, see:
-        // https://kotlin.github.io/kotlinx.coroutines/kotlinx-coroutines-core/kotlinx.coroutines/-coroutine-scope/index.html
-        // An even better solution would be to use the Android livecycle-aware viewmodel
-        // instead of attaching the scope to the activity.
-        GlobalScope.launch(Dispatchers.Main) {
-            try {
-                // Execute web request through coroutine call adapter & retrofit
-                val webResponse = WebAccess.partsApi.getPartsAsync().await()
-
-                if (webResponse.isSuccessful) {
-                    // Get the returned & parsed JSON from the web response.
-                    // Type specified explicitly here to make it clear that we already
-                    // get parsed contents.
-                    val partList: List<PartData>? = webResponse.body()
-                    Log.d(tag, partList?.toString())
-                    // Assign the list to the recycler view. If partsList is null,
-                    // assign an empty list to the adapter.
-                    adapter.partItemList = partList ?: listOf()
-                    // Inform recycler view that data has changed.
-                    // Makes sure the view re-renders itself
-                    adapter.notifyDataSetChanged()
-                } else {
-                    // Print error information to the console
-                    Log.e(tag, "Error ${webResponse.code()}")
-                    Toast.makeText(this@MainActivity, "Error ${webResponse.code()}", Toast.LENGTH_LONG).show()
-                }
-            } catch (e: IOException) {
-                // Error with network request
-                Log.e(tag, "Exception " + e.printStackTrace())
-                Toast.makeText(this@MainActivity, "Exception ${e.message}", Toast.LENGTH_LONG).show()
+    private fun subscribeObservers() {
+        viewModel.posts().observe(this, object : Observer<PartData> {
+            override fun onChanged(partData: PartData?) {
+                adapter.addAll(partData!!.parts)
             }
-        }
+        })
     }
 
-    private fun addPart(partItem: PartData) {
-        GlobalScope.launch(Dispatchers.Main) {
-            val webResponse = WebAccess.partsApi.addPartAsync(partItem).await()
-            Log.d(tag, "Add success: ${webResponse.isSuccessful}")
-            loadPartsAndUpdateList()
-        }
-    }
-
-
-    private fun partItemClicked(partItem: PartData) {
-        // Test code to add a new item to the list
-        // Will be replaced with UI function soon
-        //val newPart = PartData(Random.nextLong(0, 999999), "Infrared sensor")
-        //addPart(newPart)
-        //return
-
+    //    private fun loadPartsAndUpdateList() {
+//        GlobalScope.launch(Dispatchers.Main) {
+//            try {
+//                val webResponse = WebAccess.partsApi.getPartsAsync().await()
+//
+//                if (webResponse.isSuccessful) {
+//                    val partList: List<PartData>? = webResponse.body()
+//                    Log.d(tag, partList?.toString())
+//                    adapter.partItemList = partList ?: listOf()
+//                    adapter.notifyDataSetChanged()
+//                } else {
+//                    Log.e(tag, "Error ${webResponse.code()}")
+//                    Toast.makeText(this@MainActivity, "Error ${webResponse.code()}", Toast.LENGTH_LONG).show()
+//                }
+//            } catch (e: IOException) {
+//                Log.e(tag, "Exception " + e.printStackTrace())
+//                Toast.makeText(this@MainActivity, "Exception ${e.message}", Toast.LENGTH_LONG).show()
+//            }
+//        }
+//    }
+//
+//    private fun addPart(partItem: PartData) {
+//        GlobalScope.launch(Dispatchers.Main) {
+//            val webResponse = WebAccess.partsApi.addPartAsync(partItem).await()
+//            Log.d(tag, "Add success: ${webResponse.isSuccessful}")
+//            loadPartsAndUpdateList()
+//        }
+//    }
+//
+//
+    private fun partItemClicked(partItem: Part) {
         Toast.makeText(this, "Clicked: ${partItem.itemName}", Toast.LENGTH_LONG).show()
 
-        // Launch second activity, pass part ID as string parameter
-        val showDetailActivityIntent = Intent(this, PartDetailActivity::class.java)
-        //showDetailActivityIntent.putExtra(Intent.EXTRA_TEXT, partItem.id.toString())
-        showDetailActivityIntent.putExtra("ItemId", partItem.id)
-        showDetailActivityIntent.putExtra("ItemName", partItem.itemName)
-        startActivity(showDetailActivityIntent)
+//        // Launch second activity, pass part ID as string parameter
+//        val showDetailActivityIntent = Intent(this, PartDetailActivity::class.java)
+//        //showDetailActivityIntent.putExtra(Intent.EXTRA_TEXT, partItem.id.toString())
+//        showDetailActivityIntent.putExtra("ItemId", partItem.id)
+//        showDetailActivityIntent.putExtra("ItemName", partItem.itemName)
+//        startActivity(showDetailActivityIntent)
     }
 
 
