@@ -34,9 +34,8 @@ import java.io.IOException
 class RetrievePDRunnable(private val partData: MutableLiveData<PartData>) : Runnable {
     override fun run() {
         try {
-            val response = makeNetworkCall().execute()
+            val response = WebAccess.partsApi.partDataList().execute()
 
-            Log.d("response", "Response" + Gson().toJson(response.body()))
             if (response.code() == 200) {
                 val list = response.body() as PartData
                 partData.postValue(list)
@@ -47,9 +46,5 @@ class RetrievePDRunnable(private val partData: MutableLiveData<PartData>) : Runn
             Log.d("msg", err.toString())
             partData.postValue(null)
         }
-    }
-
-    fun makeNetworkCall(): Call<PartData> {
-        return WebAccess.partsApi.partDataList()
     }
 }

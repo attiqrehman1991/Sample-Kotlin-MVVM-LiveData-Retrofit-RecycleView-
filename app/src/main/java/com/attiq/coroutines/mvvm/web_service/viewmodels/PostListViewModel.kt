@@ -27,20 +27,24 @@ package com.attiq.coroutines.mvvm.web_service.viewmodels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.attiq.coroutines.mvvm.web_service.model.PartData
 import com.attiq.coroutines.mvvm.web_service.repositories.PartsRepositories
+import kotlinx.coroutines.launch
 
 class PostListViewModel : ViewModel() {
 
-    private var repositories= PartsRepositories.instance
+    private var repositories = PartsRepositories.instance
     private val _posts = MutableLiveData<PartData>()
 
 
-    fun posts():LiveData<PartData> {
+    fun posts(): LiveData<PartData> {
         return repositories.getParts()
     }
 
     fun fetchPosts() {
-        repositories.fetchPartList()
+        viewModelScope.launch {
+            repositories.fetchPartList()
+        }
     }
 }

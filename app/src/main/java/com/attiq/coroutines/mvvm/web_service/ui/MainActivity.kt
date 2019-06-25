@@ -67,45 +67,8 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
-    //    private fun loadPartsAndUpdateList() {
-//        GlobalScope.launch(Dispatchers.Main) {
-//            try {
-//                val webResponse = WebAccess.partsApi.getPartsAsync().await()
-//
-//                if (webResponse.isSuccessful) {
-//                    val partList: List<PartData>? = webResponse.body()
-//                    Log.d(tag, partList?.toString())
-//                    adapter.partItemList = partList ?: listOf()
-//                    adapter.notifyDataSetChanged()
-//                } else {
-//                    Log.e(tag, "Error ${webResponse.code()}")
-//                    Toast.makeText(this@MainActivity, "Error ${webResponse.code()}", Toast.LENGTH_LONG).show()
-//                }
-//            } catch (e: IOException) {
-//                Log.e(tag, "Exception " + e.printStackTrace())
-//                Toast.makeText(this@MainActivity, "Exception ${e.message}", Toast.LENGTH_LONG).show()
-//            }
-//        }
-//    }
-//
-//    private fun addPart(partItem: PartData) {
-//        GlobalScope.launch(Dispatchers.Main) {
-//            val webResponse = WebAccess.partsApi.addPartAsync(partItem).await()
-//            Log.d(tag, "Add success: ${webResponse.isSuccessful}")
-//            loadPartsAndUpdateList()
-//        }
-//    }
-//
-//
     private fun partItemClicked(partItem: Part) {
         Toast.makeText(this, "Clicked: ${partItem.itemName}", Toast.LENGTH_LONG).show()
-
-//        // Launch second activity, pass part ID as string parameter
-//        val showDetailActivityIntent = Intent(this, PartDetailActivity::class.java)
-//        //showDetailActivityIntent.putExtra(Intent.EXTRA_TEXT, partItem.id.toString())
-//        showDetailActivityIntent.putExtra("ItemId", partItem.id)
-//        showDetailActivityIntent.putExtra("ItemName", partItem.itemName)
-//        startActivity(showDetailActivityIntent)
     }
 
 
