@@ -38,9 +38,12 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
     // ViewModel and LiveData
-    def lifecycle_version = '2.0.0-beta01'
+    def lifecycle_version = '2.2.0-alpha01'
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.1'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.2.1'
 
     // Recycler view
     implementation 'androidx.recyclerview:recyclerview:1.1.0-alpha06'

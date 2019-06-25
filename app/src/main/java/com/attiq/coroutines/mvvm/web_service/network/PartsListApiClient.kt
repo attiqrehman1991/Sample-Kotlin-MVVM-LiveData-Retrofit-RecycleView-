@@ -45,13 +45,20 @@ class PartsListApiClient {
         return partLists
     }
 
-    fun fetchPartListData() {
-        if (retrievePLRunnable != null)
-            retrievePLRunnable = null
-        retrievePLRunnable = RetrievePDRunnable(partLists);
-        val handler = AppExecutors.instance.networkIO().submit(retrievePLRunnable)
-        AppExecutors.instance.networkIO().schedule({
-            handler.cancel(true)
-        }, 5000, TimeUnit.MILLISECONDS)
+    suspend fun fetchPartListData() {
+        val response = WebAccess.partsApi.partDataList().execute()
+
+        if (response.code() == 200) {
+            val list = response.body() as PartData
+            partLists.postValue(list)
+        } else
+            partLists.postValue(null)
+//        if (retrievePLRunnable != null)
+//            retrievePLRunnable = null
+//        retrievePLRunnable = RetrievePDRunnable(partLists);
+//        val handler = AppExecutors.instance.networkIO().submit(retrievePLRunnable)
+//        AppExecutors.instance.networkIO().schedule({
+//            handler.cancel(true)
+//        }, 5000, TimeUnit.MILLISECONDS)
     }
 }

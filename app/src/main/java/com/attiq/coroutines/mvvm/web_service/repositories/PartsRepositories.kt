@@ -59,7 +59,7 @@ class PartsRepositories {
         return partList
     }
 
-    fun fetchPartList() {
+    suspend fun fetchPartList() {
         postDataApiClient.fetchPartListData()
     }
 }
